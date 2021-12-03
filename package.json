@@ -1,0 +1,10 @@
+{
+  "name": "adventOfCode",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Tim McMackin",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

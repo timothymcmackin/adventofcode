@@ -1,0 +1,44 @@
+{
+  "satellites": {
+    "B": {
+      "satellites": {
+        "C": {
+          "satellites": {
+            "D": {
+              "satellites": {
+                "E": {
+                  "satellites": {
+                    "F": {
+                      "satellites": null
+                    },
+                    "J": {
+                      "satellites": {
+                        "K": {
+                          "satellites": {
+                            "L": {
+                              "satellites": null
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "I": {
+                  "satellites": null
+                }
+              }
+            }
+          }
+        },
+        "G": {
+          "satellites": {
+            "H": {
+              "satellites": null
+            }
+          }
+        }
+      }
+    }
+  }
+}
