@@ -112,4 +112,41 @@ function processOpcode(passedOpcode, inputArray, position = 0) {
   return processOpcode(opcode, inputArray, position + shiftValue);
 }
 
+// Split a number into digits
+function splitNumber(number) {
+  const digits = number.toString().split('');
+  const realDigits = digits.map(Number);
+  return realDigits;
+}
+
+const largerExample = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
+  1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
+  999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99];
+console.assert(processOpcode(largerExample, [6]) === 999, 'largerExample failed');
+console.assert(processOpcode(largerExample, [8]) === 1000, 'largerExample failed');
+console.assert(processOpcode(largerExample, [9]) === 1001, 'largerExample failed');
+
+const inputWith3 = [1002,4,3,4,33];
+const inputWith4 = [3,0,4,0,99];
+console.assert(processOpcode(inputWith4, [12]) === 12, 'inputWith4 failed');
+const equalTo8Position = [3,9,8,9,10,9,4,9,99,-1,8];
+console.assert(processOpcode(equalTo8Position, [8]) === 1, 'equalTo8Position failed');
+console.assert(processOpcode(equalTo8Position, [7]) === 0, 'equalTo8Position failed');
+const lessThan8Position = [3,9,7,9,10,9,4,9,99,-1,8];
+console.assert(processOpcode(lessThan8Position, [8]) === 0, 'lessThan8Position failed');
+console.assert(processOpcode(lessThan8Position, [7]) === 1, 'lessThan8Position failed');
+const equalTo8Immediate = [3,3,1108,-1,8,3,4,3,99];
+console.assert(processOpcode(equalTo8Immediate, [8]) === 1, 'equalTo8Immediate failed');
+console.assert(processOpcode(equalTo8Immediate, [7]) === 0, 'equalTo8Immediate failed');
+const lessThan8Immediate = [3,3,1107,-1,8,3,4,3,99];
+console.assert(processOpcode(lessThan8Immediate, [8]) === 0, 'lessThan8Immediate failed');
+console.assert(processOpcode(lessThan8Immediate, [7]) === 1, 'lessThan8Immediate failed');
+
+const jumpTestNonzeroPosition = [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9];
+console.assert(processOpcode(jumpTestNonzeroPosition, [0]) === 0, 'jumpTestNonzeroPosition failed');
+console.assert(processOpcode(jumpTestNonzeroPosition, [7]) === 1, 'jumpTestNonzeroPosition failed');
+const jumpTestNonzeroImmediate = [3,3,1105,-1,9,1101,0,0,12,4,12,99,1];
+console.assert(processOpcode(jumpTestNonzeroImmediate, [0]) === 0, 'jumpTestNonzeroImmediate failed');
+console.assert(processOpcode(jumpTestNonzeroImmediate, [7]) === 1, 'jumpTestNonzeroImmediate failed');
+
 module.exports = { processOpcode };
