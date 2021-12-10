@@ -10,7 +10,7 @@ const amplifier = (program, phase, input) => processOpcode(program, [phase, inpu
 
 const runAmplifiers = (program, sequence, input = 0) => {
   const phase = sequence.shift();
-  const output = amplifier(program, phase, input);
+  const output = amplifier([...program], phase, input);
   if (sequence.length) {
     return runAmplifiers(program, sequence, output);
   }
@@ -59,8 +59,8 @@ const getMaxOfAmps = (program, availablePhases) => {
   }, 0);
 }
 
-console.assert(getMaxOfAmps(sampleProgram1, [0,1,2,3,4]), 43210);
-console.assert(getMaxOfAmps(sampleProgram2, [0,1,2,3,4]), 53321);
-console.assert(getMaxOfAmps(sampleProgram3, [0,1,2,3,4]), 65210);
+console.assert(getMaxOfAmps(sampleProgram1, [0,1,2,3,4]) === 43210);
+console.assert(getMaxOfAmps(sampleProgram2, [0,1,2,3,4]) === 54321);
+console.assert(getMaxOfAmps(sampleProgram3, [0,1,2,3,4]) === 65210);
 
 console.log(getMaxOfAmps(puzzleInput, [0,1,2,3,4]))

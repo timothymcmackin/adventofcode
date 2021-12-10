@@ -16,6 +16,9 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
   }
 
   // The rightmost digits of the instruction control position mode, immediate mode, or relative mode
+  // 0: Position mode
+  // 1: immediate mode
+  // 2: relative mode
   var modeDigits = splitNumber(instruction);
   // Leading zeroes omitted, so add them back
   while (modeDigits.length < 5) {
@@ -28,23 +31,28 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
   if (command === 1) {
     const aMode = modeDigits.pop();
     const bMode = modeDigits.pop();
+    const cMode = modeDigits.pop();
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
     // add
-    opcode[opcode[position + 3]] = a + b;
+    opcode = setValue(opcode, cMode, relativeBase, opcode[position + 3], a + b);
     shiftValue = 4;
   } else if (command === 2) {
     const aMode = modeDigits.pop();
     const bMode = modeDigits.pop();
+    const cMode = modeDigits.pop();
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
     // multiply
-    opcode[opcode[position + 3]] = a * b;
+    opcode = setValue(opcode, cMode, relativeBase, opcode[position + 3], a * b);
     shiftValue = 4;
   } else if (command === 3) {
     // take an input value and store it at address a
-    // Always in position mode
-    opcode[opcode[position + 1]] = inputArray.shift();
+    // Never in immediate mode
+    const aMode = modeDigits.pop();
+    opcode = setValue(opcode, aMode, relativeBase, opcode[position + 1], inputArray.shift());
+    // const locationToStore = aMode === 0 ? opcode[position + 1] : opcode[position + 1] + relativeBase;
+    // opcode[locationToStore] = inputArray.shift();
     shiftValue = 2;
   } else if (command === 4) {
     shiftValue = 2;
@@ -78,30 +86,24 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
     // else store 0 in c
     const aMode = modeDigits.pop();
     const bMode = modeDigits.pop();
+    const cMode = modeDigits.pop();
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
-    if (a < b) {
-      opcode[opcode[position + 3]] = 1;
-    } else {
-      opcode[opcode[position + 3]] = 0;
-    }
+    opcode = setValue(opcode, cMode, relativeBase, opcode[position + 3], a < b ? 1 : 0);
     shiftValue = 4;
   } else if (command === 8) {
     // if a = b, store 1 in c
     // else store 0 in c
     const aMode = modeDigits.pop();
     const bMode = modeDigits.pop();
+    const cMode = modeDigits.pop();
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
-    if (a === b) {
-      opcode[opcode[position + 3]] = 1;
-    } else {
-      opcode[opcode[position + 3]] = 0;
-    }
+    opcode = setValue(opcode, cMode, relativeBase, opcode[position + 3], a === b ? 1 : 0);
     shiftValue = 4;
   } else if (command === 9) {
     // Adjust the relative base by the parameter
-    relativeBase += opcode[position + 1];
+    relativeBase += getValue(opcode, modeDigits.pop(), relativeBase, opcode[position + 1]);
     shiftValue = 2;
   } else {
     // error
@@ -125,6 +127,18 @@ function getValue(opcode, mode, relativeBase, param) {
   if (mode === 2) {
     return opcode[param + relativeBase] || 0;
   }
+}
+
+function setValue(opcode, mode, relativeBase, param, value) {
+  if (mode === 0) {
+    opcode[param] = value;
+  } else if (mode === 1) {
+    // invalid
+    throw new Error("Can't set value in immediate mode");
+  } else if (mode === 2) {
+    opcode[param + relativeBase] = value;
+  }
+  return opcode;
 }
 
 // Split a number into digits
@@ -187,5 +201,16 @@ const copyOfItself = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
 const output16Digits = [1102,34915192,34915192,7,4,7,99,0];
 console.assert(processOpcode(output16Digits).pop().toString().length === 16, 'output16digits failed');
 console.assert(compareArrays(reverseArray(processOpcode(copyOfItself)), copyOfItself), 'copyOfItself failed');
+console.assert(processOpcode([104,1125899906842624,99]).pop() === 1125899906842624, 'big number failed');
+
+// https://www.reddit.com/r/adventofcode/comments/e8aw9j/comment/fac3294/?utm_source=reddit&utm_medium=web2x&context=3
+console.assert(processOpcode([109, -1, 4, 1, 99]).pop() === -1, 'test case 1');
+console.assert(processOpcode([109, -1, 104, 1, 99]).pop() === 1, 'test case 2');
+console.assert(processOpcode([109, -1, 204, 1, 99]).pop() === 109, 'test case 3');
+console.assert(processOpcode([109, 1, 9, 2, 204, -6, 99]).pop() === 204, 'test case 4');
+console.assert(processOpcode([109, 1, 109, 9, 204, -6, 99]).pop() === 204, 'test case 5');
+console.assert(processOpcode([109, 1, 209, -1, 204, -106, 99]).pop() === 204, 'test case 6');
+console.assert(processOpcode([109, 1, 3, 3, 204, 2, 99], [123456]).pop() === 123456, 'test case 7');
+console.assert(processOpcode([109, 1, 203, 2, 204, 2, 99], [654321]).pop() === 654321, 'test case 8');
 
 module.exports = { processOpcode };
