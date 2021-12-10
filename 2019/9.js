@@ -1,7 +1,6 @@
 const { puzzleInput } = require('./inputs/input9');
 
-const { processOpcode } = require('./intCode');
+const { runOpcode } = require('./intCode');
 
-console.log(processOpcode(puzzleInput, [1]));
-// 203 too low: [0, 203] -- fixed code 203, I think
-// Now getting [ 2854060604, 21101, 21107, 21108, 21102 ] // does that mean these codes are wrong? surprised that addition with 
+console.assert(runOpcode(puzzleInput, [1]).pop() === 2316632620);
+console.log(runOpcode(puzzleInput, [2]));

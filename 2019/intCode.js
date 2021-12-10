@@ -1,7 +1,5 @@
-function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position = 0) {
-  var opcode = [...passedOpcode];
+function processOpcode({ opcode, inputArray = [], relativeBase = 0, position = 0 }) {
   const instruction = opcode[position];
-
   // How many values to shift to get to the next instruction
   var shiftValue;
 
@@ -51,8 +49,6 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
     // Never in immediate mode
     const aMode = modeDigits.pop();
     opcode = setValue(opcode, aMode, relativeBase, opcode[position + 1], inputArray.shift());
-    // const locationToStore = aMode === 0 ? opcode[position + 1] : opcode[position + 1] + relativeBase;
-    // opcode[locationToStore] = inputArray.shift();
     shiftValue = 2;
   } else if (command === 4) {
     shiftValue = 2;
@@ -68,7 +64,7 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
     if (a !== 0) {
-      return processOpcode(opcode, inputArray, relativeBase, b);
+      return { opcode, inputArray, relativeBase, position: b };
     }
     shiftValue = 3;
   } else if (command === 6) {
@@ -78,7 +74,7 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
     const a = getValue(opcode, aMode, relativeBase, opcode[position + 1]);
     const b = getValue(opcode, bMode, relativeBase, opcode[position + 2]);
     if (a === 0) {
-      return processOpcode(opcode, inputArray, relativeBase, b);
+      return { opcode, inputArray, relativeBase, position: b };
     }
     shiftValue = 3;
   } else if (command === 7) {
@@ -110,7 +106,26 @@ function processOpcode(passedOpcode, inputArray = [], relativeBase = 0, position
     throw new Error('Invalid instruction at position ' + position);
   }
 
-  return processOpcode(opcode, inputArray, relativeBase, position + shiftValue);
+  return {
+    opcode,
+    inputArray,
+    relativeBase,
+    position: position + shiftValue,
+  };
+  // return processOpcode(opcode, inputArray, relativeBase, position + shiftValue);
+}
+
+function runOpcode(passedOpcode, inputArray = []) {
+  var opcode = [...passedOpcode];
+  var nextInstruction = 0;
+  var position = 0;
+  var relativeBase = 0;
+  var result = { opcode, inputArray, relativeBase, position } ;
+  while (nextInstruction !== 99) {
+    result = processOpcode(result);
+    nextInstruction = result.opcode[result.position];
+  }
+  return result.inputArray;
 }
 
 // Get a value based on the mode and relative base
@@ -142,11 +157,7 @@ function setValue(opcode, mode, relativeBase, param, value) {
 }
 
 // Split a number into digits
-function splitNumber(number) {
-  const digits = number.toString().split('');
-  const realDigits = digits.map(Number);
-  return realDigits;
-}
+const splitNumber = (number) => number.toString().split('').map(Number);
 
 function reverseArray(array) {
   var newArray = [];
@@ -171,46 +182,46 @@ function compareArrays(arr1, arr2) {
 const largerExample = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
   1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
   999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99];
-console.assert(processOpcode(largerExample, [6]).pop() === 999, 'largerExample failed');
-console.assert(processOpcode(largerExample, [8]).pop() === 1000, 'largerExample failed');
-console.assert(processOpcode(largerExample, [9]).pop() === 1001, 'largerExample failed');
+console.assert(runOpcode(largerExample, [6]).pop() === 999, 'largerExample failed');
+console.assert(runOpcode(largerExample, [8]).pop() === 1000, 'largerExample failed');
+console.assert(runOpcode(largerExample, [9]).pop() === 1001, 'largerExample failed');
 
 const inputWith4 = [3,0,4,0,99];
-console.assert(processOpcode(inputWith4, [12]).pop() === 12, 'inputWith4 failed');
+console.assert(runOpcode(inputWith4, [12]).pop() === 12, 'inputWith4 failed');
 const equalTo8Position = [3,9,8,9,10,9,4,9,99,-1,8];
-console.assert(processOpcode(equalTo8Position, [8]).pop() === 1, 'equalTo8Position failed');
-console.assert(processOpcode(equalTo8Position, [7]).pop() === 0, 'equalTo8Position failed');
+console.assert(runOpcode(equalTo8Position, [8]).pop() === 1, 'equalTo8Position failed');
+console.assert(runOpcode(equalTo8Position, [7]).pop() === 0, 'equalTo8Position failed');
 const lessThan8Position = [3,9,7,9,10,9,4,9,99,-1,8];
-console.assert(processOpcode(lessThan8Position, [8]).pop() === 0, 'lessThan8Position failed');
-console.assert(processOpcode(lessThan8Position, [7]).pop() === 1, 'lessThan8Position failed');
+console.assert(runOpcode(lessThan8Position, [8]).pop() === 0, 'lessThan8Position failed');
+console.assert(runOpcode(lessThan8Position, [7]).pop() === 1, 'lessThan8Position failed');
 const equalTo8Immediate = [3,3,1108,-1,8,3,4,3,99];
-console.assert(processOpcode(equalTo8Immediate, [8]).pop() === 1, 'equalTo8Immediate failed');
-console.assert(processOpcode(equalTo8Immediate, [7]).pop() === 0, 'equalTo8Immediate failed');
+console.assert(runOpcode(equalTo8Immediate, [8]).pop() === 1, 'equalTo8Immediate failed');
+console.assert(runOpcode(equalTo8Immediate, [7]).pop() === 0, 'equalTo8Immediate failed');
 const lessThan8Immediate = [3,3,1107,-1,8,3,4,3,99];
-console.assert(processOpcode(lessThan8Immediate, [8]).pop() === 0, 'lessThan8Immediate failed');
-console.assert(processOpcode(lessThan8Immediate, [7]).pop() === 1, 'lessThan8Immediate failed');
+console.assert(runOpcode(lessThan8Immediate, [8]).pop() === 0, 'lessThan8Immediate failed');
+console.assert(runOpcode(lessThan8Immediate, [7]).pop() === 1, 'lessThan8Immediate failed');
 
 const jumpTestNonzeroPosition = [3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9];
-console.assert(processOpcode(jumpTestNonzeroPosition, [0]).pop() === 0, 'jumpTestNonzeroPosition failed');
-console.assert(processOpcode(jumpTestNonzeroPosition, [7]).pop() === 1, 'jumpTestNonzeroPosition failed');
+console.assert(runOpcode(jumpTestNonzeroPosition, [0]).pop() === 0, 'jumpTestNonzeroPosition failed');
+console.assert(runOpcode(jumpTestNonzeroPosition, [7]).pop() === 1, 'jumpTestNonzeroPosition failed');
 const jumpTestNonzeroImmediate = [3,3,1105,-1,9,1101,0,0,12,4,12,99,1];
-console.assert(processOpcode(jumpTestNonzeroImmediate, [0]).pop() === 0, 'jumpTestNonzeroImmediate failed');
-console.assert(processOpcode(jumpTestNonzeroImmediate, [7]).pop() === 1, 'jumpTestNonzeroImmediate failed');
+console.assert(runOpcode(jumpTestNonzeroImmediate, [0]).pop() === 0, 'jumpTestNonzeroImmediate failed');
+console.assert(runOpcode(jumpTestNonzeroImmediate, [7]).pop() === 1, 'jumpTestNonzeroImmediate failed');
 
 const copyOfItself = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99];
 const output16Digits = [1102,34915192,34915192,7,4,7,99,0];
-console.assert(processOpcode(output16Digits).pop().toString().length === 16, 'output16digits failed');
-console.assert(compareArrays(reverseArray(processOpcode(copyOfItself)), copyOfItself), 'copyOfItself failed');
-console.assert(processOpcode([104,1125899906842624,99]).pop() === 1125899906842624, 'big number failed');
+console.assert(runOpcode(output16Digits).pop().toString().length === 16, 'output16digits failed');
+console.assert(compareArrays(reverseArray(runOpcode(copyOfItself)), copyOfItself), 'copyOfItself failed');
+console.assert(runOpcode([104,1125899906842624,99]).pop() === 1125899906842624, 'big number failed');
 
 // https://www.reddit.com/r/adventofcode/comments/e8aw9j/comment/fac3294/?utm_source=reddit&utm_medium=web2x&context=3
-console.assert(processOpcode([109, -1, 4, 1, 99]).pop() === -1, 'test case 1');
-console.assert(processOpcode([109, -1, 104, 1, 99]).pop() === 1, 'test case 2');
-console.assert(processOpcode([109, -1, 204, 1, 99]).pop() === 109, 'test case 3');
-console.assert(processOpcode([109, 1, 9, 2, 204, -6, 99]).pop() === 204, 'test case 4');
-console.assert(processOpcode([109, 1, 109, 9, 204, -6, 99]).pop() === 204, 'test case 5');
-console.assert(processOpcode([109, 1, 209, -1, 204, -106, 99]).pop() === 204, 'test case 6');
-console.assert(processOpcode([109, 1, 3, 3, 204, 2, 99], [123456]).pop() === 123456, 'test case 7');
-console.assert(processOpcode([109, 1, 203, 2, 204, 2, 99], [654321]).pop() === 654321, 'test case 8');
+console.assert(runOpcode([109, -1, 4, 1, 99]).pop() === -1, 'test case 1');
+console.assert(runOpcode([109, -1, 104, 1, 99]).pop() === 1, 'test case 2');
+console.assert(runOpcode([109, -1, 204, 1, 99]).pop() === 109, 'test case 3');
+console.assert(runOpcode([109, 1, 9, 2, 204, -6, 99]).pop() === 204, 'test case 4');
+console.assert(runOpcode([109, 1, 109, 9, 204, -6, 99]).pop() === 204, 'test case 5');
+console.assert(runOpcode([109, 1, 209, -1, 204, -106, 99]).pop() === 204, 'test case 6');
+console.assert(runOpcode([109, 1, 3, 3, 204, 2, 99], [123456]).pop() === 123456, 'test case 7');
+console.assert(runOpcode([109, 1, 203, 2, 204, 2, 99], [654321]).pop() === 654321, 'test case 8');
 
-module.exports = { processOpcode };
+module.exports = { runOpcode };
