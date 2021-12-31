@@ -144,18 +144,20 @@ const processStringToArr = (str) => {
 
 function addNumbers(numberString) {
   const numbers = numberString.split('\n').map(processStringToArr);
-  return numbers.reduce((sum, num) => {
-    const unreducedSum = ['[', ...sum, ...num, ']'];
-    printNum(sum);
-    console.log('+');
-    printNum(num);
-    console.log('=');
-    const reducedNumber = reduceNumber(unreducedSum);
-    printNum(reducedNumber);
-    console.log();
-    console.log();
-    return reducedNumber;
-  });
+  return numbers.reduce(addArrays);
+}
+
+function addArrays(arr1, arr2) {
+  const unreducedSum = ['[', ...arr1, ...arr2, ']'];
+  printNum(arr1);
+  console.log('+');
+  printNum(arr2);
+  console.log('=');
+  const reducedNumber = reduceNumber(unreducedSum);
+  printNum(reducedNumber);
+  console.log();
+  console.log();
+  return reducedNumber;
 }
 
 const printNum = (arr) => {
@@ -235,6 +237,22 @@ function getMagnitude(arr) {
 // const magnitudeTest = processStringToArr('[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]');
 // console.assert(getMagnitude(magnitudeTest) === 3488, 'magnitude test');
 
+function getMaxMagOfList(numberString) {
+  const numbers = numberString.split('\n').map(processStringToArr);
+  var largestMagnitude = 0;
+  for (let i = 0; i < numbers.length; i++) {
+    for (let j = 0; j < numbers.length; j++) {
+      if (i !== j) {
+        const magnitude = getMagnitude(addArrays(numbers[i], numbers[j]));
+        if (magnitude > largestMagnitude) {
+          largestMagnitude = magnitude;
+        }
+      }
+    }
+  }
+  return largestMagnitude;
+}
+
 const testCase1 = `[[[[4,3],4],4],[7,[[8,4],9]]]
 [1,1]`;
 const testCase2 = `[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
@@ -263,5 +281,7 @@ const testCase4 = `[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 const puzzleOutput = addNumbers(puzzleInput);
 printNum(puzzleOutput); //[[[[6,0],[6,7]],[[7,7],[7,7]]],[[[7,7],[7,8]],[9,[5,5]]]]
 console.log(getMagnitude(puzzleOutput));
+
+console.log(getMaxMagOfList(puzzleInput));
 
 
