@@ -93,17 +93,60 @@ const processClaim = (claim, passedCloth) => {
   return returnCloth;
 };
 
-const testCloth = [[0,0,0,2], [0,0,3,2]];
+const testCloth = [
+  [0,0,0,2],
+  [0,0,3,2],
+  [0,0,3,2],
+  [0,0,3,2],
+];
 
-const countHigherThan = (passedCloth, higherThan) => _.flatten(passedCloth).filter((v) => v > higherThan).length
-// tests
-if (countHigherThan(testCloth, 1) !== 3) {
-  console.log('countHigherThan failed');
-  process.exit(1);
-}
+const countHigherThan = (passedCloth, higherThan) => _.flatten(passedCloth).filter((v) => v > higherThan).length;
 
 const finishedCloth = claims.reduce((updatedCloth, oneClaim) =>
   processClaim(oneClaim, updatedCloth)
 , cloth);
 
-console.log(countHigherThan(finishedCloth, 1));
+// console.log(countHigherThan(finishedCloth, 1)); // Part 1
+
+const testClaims = [
+  {
+    claimNo: 1,
+    x: 3,
+    y: 3,
+    width: 2,
+    height: 2,
+  },
+  {
+    claimNo: 2,
+    x: 1,
+    y: 1,
+    width: 1,
+    height: 1,
+  },
+];
+
+// Find a claim that does not overlap with anyone
+const intactClaim = _.find(claims, (oneClaim) => {
+  const {
+    claimNo,
+    x,
+    y,
+    width,
+    height,
+  } = oneClaim;
+  console.log(`Checking claim ${claimNo} of ${claims.length}.`);
+  var claimIsIntact = true;
+  let xCounter = x;
+  while (claimIsIntact && xCounter < x + width) {
+    let yCounter = y;
+    while (claimIsIntact && yCounter < y + height) {
+      if (finishedCloth[xCounter][yCounter] > 1) {
+        claimIsIntact = false;
+      }
+      yCounter++;
+    }
+    xCounter++;
+  }
+  return claimIsIntact;
+});
+console.log(`Intact claim: ${intactClaim.claimNo}`);
