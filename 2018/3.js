@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-
-const inputs = fs.readFileSync(path.resolve(__dirname, './inputs/3.txt'), 'utf8').split('');
+const _ = require('lodash');
 
 const parseClaim = (claimString) => {
   const claimBySpaces = claimString.split(' ');
@@ -27,7 +26,7 @@ const parseClaimTest = () => {
     x: 56,
     y: 249,
     width: 24,
-    height:16,
+    height: 16,
   };
   const {
     claimNo,
@@ -58,3 +57,53 @@ const parseClaimTest = () => {
   }
 }
 parseClaimTest();
+
+const claims = fs.readFileSync(path.resolve(__dirname, './inputs/3.txt'), 'utf8')
+  .split('\n')
+  .map(parseClaim);
+
+// Get max width and height
+const maxWidth = _.max(_.map(claims, ({ x, width }) => x + width));
+const maxHeight = _.max(_.map(claims, ({ y, height }) => y + height));
+
+let cloth = [];
+const starterRow = [];
+for (let i = 1; i <= maxWidth + 1; i++) {
+  starterRow.push([0]);
+}
+for (let i = 1; i <= maxHeight + 1; i++) {
+  cloth.push(starterRow);
+}
+
+const processClaim = (claim, passedCloth) => {
+  const returnCloth = JSON.parse(JSON.stringify(passedCloth));
+  const {
+    claimNo,
+    x,
+    y,
+    width,
+    height,
+  } = claim;
+  console.log(`Processing claim ${claimNo} of ${claims.length}.`);
+  for (let xCounter = x; xCounter < x + width; xCounter++) {
+    for (let yCounter = y; yCounter < y + height; yCounter++) {
+      returnCloth[xCounter][yCounter]++;
+    }
+  }
+  return returnCloth;
+};
+
+const testCloth = [[0,0,0,2], [0,0,3,2]];
+
+const countHigherThan = (passedCloth, higherThan) => _.flatten(passedCloth).filter((v) => v > higherThan).length
+// tests
+if (countHigherThan(testCloth, 1) !== 3) {
+  console.log('countHigherThan failed');
+  process.exit(1);
+}
+
+const finishedCloth = claims.reduce((updatedCloth, oneClaim) =>
+  processClaim(oneClaim, updatedCloth)
+, cloth);
+
+console.log(countHigherThan(finishedCloth, 1));
