@@ -88,9 +88,12 @@ const processInput = (str) => {
 
 const runPots = ({ initial, plantGrowsIfMatches, plantDoesNotGrowIfMatches }, numGenerations) => {
   let pots = JSON.parse(JSON.stringify(initial));
+  let prevPotSum = countActivePots(pots);
+  let potDifference = 0;
   console.log(0, ':', '...', _.reduce(pots, (str, val) => str + (val ? '#' : '.'), ''));
+  let gen = 1;
 
-  for (let gen = 1; gen <= numGenerations; gen++) {
+  while (gen <= numGenerations /*&& potDifference !== 96*/) {
     const prevPots = JSON.parse(JSON.stringify(pots));
     const maxStartingPots = Math.max(...Object.keys(pots).map(Number));
 
@@ -140,18 +143,30 @@ const runPots = ({ initial, plantGrowsIfMatches, plantDoesNotGrowIfMatches }, nu
 
       activePot--;
     }
-
-    // console.log(gen, ':', '...', _.reduce(pots, (str, val) => str + (val ? '#' : '.'), ''));
-
     
+    // Count the active pots
+    const currentPotSum = countActivePots(pots);
+    potDifference = currentPotSum - prevPotSum;
+    console.log(gen, ':', currentPotSum, '-', prevPotSum, '=', potDifference);
+    prevPotSum = currentPotSum;
+    // Increasing by 96 pots per generation
+    // Make it a while loop and find out when it levels off at 96
+    
+    if (potDifference === 96) {
+      // Change has stabilized at +96 per generation
+      // project through number of generations
+      const remainingGens = numGenerations - gen;
+      return currentPotSum + (remainingGens * 96);
+      // 4800000000991 too low
+    }
+    gen++;
   }
-  // Count the active pots
-  return _.reduce(pots, (count, val, idx) => val ? count + Number(idx) : count, 0);
 };
+
+const countActivePots = (pots) => _.reduce(pots, (count, val, idx) => val ? count + Number(idx) : count, 0);
 
 
 const testInput = processInput(testInputStr);
 const input = processInput(inputStr);
 
-
-console.log(runPots(input, 100));
+console.log(runPots(input, 50000000000));
