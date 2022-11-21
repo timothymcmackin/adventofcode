@@ -75,7 +75,7 @@ const iteratePoints = (passedData, maxIterations) => {
     console.log(width, 'x', height);
     if (width > prevWidth && height > prevHeight) {
       console.log('iterations:', i);
-      printData(data);
+      printData(data, i);
       keepGoing = false;
     }
     prevHeight = height;
@@ -86,7 +86,7 @@ const iteratePoints = (passedData, maxIterations) => {
   }
 };
 
-const printData = (data) => {
+const printData = (data, iterations) => {
   const minX = Math.min(...data.map(({ xPos }) => xPos));
   const maxX = Math.max(...data.map(({ xPos }) => xPos));
   const minY = Math.min(...data.map(({ yPos }) => yPos));
@@ -102,9 +102,11 @@ const printData = (data) => {
   data.forEach(({ xPos, yPos }) => grid[yPos][xPos] = '*');
   console.log();
   console.log(grid.map((oneLine) => oneLine.join('')).join('\n'));
+  console.log(iterations);
   console.log();
 };
 
 const testCoords = getCoords(testInput);
 const inputCoords = getCoords(input);
 iteratePoints(inputCoords, 10000000000);
+// RBCZAEPP
