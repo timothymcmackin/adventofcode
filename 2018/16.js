@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
-const { deepEqual } = require('assert');
 
 const inputString = fs.readFileSync(path.resolve(__dirname, './inputs/16.txt'), 'utf8');
 const testString = `Before: [3, 2, 1, 1]
@@ -64,6 +63,19 @@ const processInput = (inputStr) => {
   return result;
 };
 
+const processProgram = (inputStr) => {
+  let str = inputStr.split('\n');
+  let result = [];
+  const commandRegex = /^(\d*)\s(\d*)\s(\d*)\s(\d*)$/;
+  while (str.length > 0) {
+    const match = commandRegex.exec(str.shift());
+    if (match) {
+      result.push([Number(match[1]), Number(match[2]), Number(match[3]), Number(match[4])]);
+    }
+  }
+  return result;
+};
+
 // result of processInput(testString);
 const exampleInstruction = processInput(testString);
 // [
@@ -110,12 +122,12 @@ const runCommands = ({ before, command }) => {
   // Bitwise AND:
   
   // banr (bitwise AND register) stores into register C the result of the bitwise AND of register A and register B.
-  const banr = parseInt(rA & rB, 2);
+  const banr = rA & rB;
   let banrResult = JSON.parse(JSON.stringify(before));
   banrResult[outputRegister] = banr;
   result.banr = banrResult;
   // bani (bitwise AND immediate) stores into register C the result of the bitwise AND of register A and value B.
-  const bani = parseInt(rA & vB, 2);
+  const bani = rA & vB;
   let baniResult = JSON.parse(JSON.stringify(before));
   baniResult[outputRegister] = bani;
   result.bani = baniResult;
@@ -231,4 +243,64 @@ const inputInstructions = processInput(inputString);
 const inputResults = inputInstructions.map(getMatchingOpcodes);
 const inputResultsWithMoreThan3 = inputResults.filter((opcodes) => opcodes.length >= 3);
 
-console.log(inputResultsWithMoreThan3.length);
+console.log(inputResultsWithMoreThan3.length); // part 1 answer
+
+const allOpCodes = inputInstructions.reduce((codes, instruction) => {
+  if (!codes.includes(instruction.command[0])) {
+    codes.push(instruction.command[0]);
+  }
+  return codes;
+}, []);
+
+const opCodePossibilities = allOpCodes.map((opCode) => {
+  const instructionsWithThisOpCode = inputInstructions.filter((instruction) => instruction.command[0] === opCode);
+  possibleCommands = _.uniq(instructionsWithThisOpCode.map(getMatchingOpcodes).flat());
+  return {
+    opCode,
+    possibleCommands,
+  }
+});
+// [
+//   { opCode: 10, possibleCommands: [ 'addr', 'addi', 'seti' ] },
+//   { opCode: 11, possibleCommands: [ 'eqrr' ] },
+// ...
+//]
+
+const getOpCodeMap = (passedOpCodePossibilities) => {
+  let opCodePossibilities = JSON.parse(JSON.stringify(passedOpCodePossibilities));
+  const result = [];
+  while (opCodePossibilities.length > 0) {
+    // Get the opcodes with only one possible cmd
+    const opCodesWithOnlyOnePossibleCmd = opCodePossibilities.filter(({ possibleCommands }) => possibleCommands.length === 1);
+    opCodePossibilities = opCodePossibilities.filter(({ possibleCommands }) => possibleCommands.length > 1);
+    result.push(...opCodesWithOnlyOnePossibleCmd);
+    // Remove possibilities that we know
+    const knownCmds = result.map(({ possibleCommands }) => possibleCommands[0]);
+    opCodePossibilities = opCodePossibilities.map(({ opCode, possibleCommands }) => ({
+      opCode,
+      possibleCommands: possibleCommands.filter((cmd) => !knownCmds.includes(cmd)),
+    }));
+  }
+  return result.map(({ opCode, possibleCommands }) => ({ opCode, cmd: possibleCommands[0]}));
+};
+
+const opCodeMap = getOpCodeMap(opCodePossibilities);
+// console.log(opCodeMap);
+// [
+  // { opCode: 11, possibleCommands: [ 'eqrr' ] },
+  // { opCode: 3, possibleCommands: [ 'eqri' ] },
+  // ...
+// ]
+
+// To be really lazy, run all the commands and filter the result to the wanted command
+const inputProgramStr = fs.readFileSync(path.resolve(__dirname, './inputs/16pgm.txt'), 'utf8');
+const inputProgram = processProgram(inputProgramStr);
+
+const programResult = inputProgram.reduce((registers, command, i) => {
+  const commandResults = runCommands({ before: registers, command });
+  const commandMatch = _.find(opCodeMap, ({ opCode }) => opCode === command[0])
+  const commandName = commandMatch.cmd;
+  const result = commandResults[commandName];
+  return result;
+}, [0,0,0,0]);
+console.log(programResult[0]);
