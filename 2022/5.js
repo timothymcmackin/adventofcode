@@ -56,14 +56,12 @@ const processCrateString = (crateString) => {
   for (let i = 0; i < maxStackHeight; i++) {
     crates[i] = [];
     for (let j = 0; j < cratesHorizontal.length; j++) {
-      crates[i].push(cratesHorizontal[j].shift());
+      crates[i].push(cratesHorizontal[j].shift() || null);
     }
   }
   printCrates(crates);
-  /*
-    [ [ null, 'N', 'Z' ], [ 'D', 'C', 'M' ], [ null, null, 'P' ] ]
-  */
- return crates;
+  crates = crates.map((oneCrate) => oneCrate.filter((c) => !!c));
+  return crates;
 };
 
 const instructionsRegex = /^move (\d+) from (\d+) to (\d+)/;
@@ -93,6 +91,7 @@ const runInstructions = (crates, instructions) => {
       // Check if there is anything at the very top of the source stack
       if (!!crates[target][0]) {
         // If so, add an empty slot to each stack
+        // Turns out that this wasn't necessary except to pretty-print without having to rotate back
         crates = crates.map((stack) => [null, ...stack]);
         crates[target][0] = movingCrate;
       } else if (crates[target].every((item) => !item)) {
@@ -112,6 +111,22 @@ const runInstructions = (crates, instructions) => {
       }
       // printCrates(crates);
     }
+  }
+  return crates;
+}
+
+// In part two, crates are moved as a unit
+const runInstructionsPartTwo = (crates, instructions) => {
+  while (instructions.length > 0) {
+    const { quantity, source, target } = instructions.shift();
+    let movingCrates = [];
+    for (let i = 0; i < quantity; i++) {
+      movingCrates.push(crates[source].shift())
+    }
+    if (!crates[target]) {
+      crates[target] = [];
+    }
+    crates[target] = [...movingCrates, ...crates[target]];
   }
   return crates;
 }
@@ -139,8 +154,9 @@ const inputCrates = processCrateString(initialCratesString);
 // const testInstructions = processInstructionsString(testInstructionsString);
 const inputInstructions = processInstructionsString(initialInstructionsString);
 
-// const testCratesMoved = runInstructions(testCrates, testInstructions);
-const inputCratesMoved = runInstructions(inputCrates, inputInstructions);
+// const testCratesMoved = runInstructionsPartTwo(testCrates, testInstructions);
+const inputCratesMoved = runInstructionsPartTwo(inputCrates, inputInstructions);
 
 // console.log(getTopCrates(testCratesMoved));
 console.log(getTopCrates(inputCratesMoved));
+// Not FFWFFWFWF

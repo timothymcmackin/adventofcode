@@ -1,5 +1,4 @@
-const initialCratesString = `
-    [P]                 [C] [C]    
+const initialCratesString = `    [P]                 [C] [C]    
     [W]         [B]     [G] [V] [V]
     [V]         [T] [Z] [J] [T] [S]
     [D] [L]     [Q] [F] [Z] [W] [R]
