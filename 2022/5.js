@@ -154,8 +154,7 @@ const inputCrates = processCrateString(initialCratesString);
 // const testInstructions = processInstructionsString(testInstructionsString);
 const inputInstructions = processInstructionsString(initialInstructionsString);
 
-// const testCratesMoved = runInstructionsPartTwo(testCrates, testInstructions);
-const inputCratesMoved = runInstructionsPartTwo(inputCrates, inputInstructions);
+
 
 // console.log(getTopCrates(testCratesMoved));
 console.log(getTopCrates(inputCratesMoved));
