@@ -44,3 +44,58 @@ const runPart1 = (instructions) => {
 
 console.log(runPart1(testInput), 'should be 13140');
 console.log('Part 1:', runPart1(input));
+
+const runPart2 = (instructions) => {
+  let X = 1;
+  let cycle = 0;
+  // grid is 40 wide and 6 high, so 240 chars
+  let crt = '';
+
+  // The sprite is 3 chars wide, starting with index X
+  // "(In this system, there is no such thing as "vertical position": if the sprite's horizontal position puts its pixels where the CRT is currently drawing, then those pixels will be drawn.)"
+  // ^ Does this mean that the sprite applies to all rows?
+  // If the sprite is positioned such that one of its three pixels is the pixel currently being drawn, the screen produces a lit pixel (#); otherwise, the screen leaves the pixel dark (.).
+
+  for (const { instruction, value } of instructions) {
+    if (instruction === 'noop') {
+      if (Math.abs((cycle % 40) - X) <= 1) {
+        crt += '#';
+      } else {
+        crt += '.';
+      }
+      cycle++;
+    }
+    if (instruction === 'addx') {
+      // takes two cycles
+      if (Math.abs((cycle % 40) - X) <= 1) {
+        crt += '#';
+      } else {
+        crt += '.';
+      }
+      cycle++;
+      if (Math.abs((cycle % 40) - X) <= 1) {
+        crt += '#';
+      } else {
+        crt += '.';
+      }
+      cycle++;
+      X += value;
+    }
+  }
+  printCrt(crt);
+}
+
+const printCrt = (str) => {
+  const arr = [
+    str.substring(0, 40),
+    str.substring(40, 80),
+    str.substring(80, 120),
+    str.substring(120, 160),
+    str.substring(160, 200),
+    str.substring(200, 240),
+  ];
+  console.log(arr.join('\n'));
+};
+
+runPart2(testInput);
+runPart2(input);
