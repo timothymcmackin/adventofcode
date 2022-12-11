@@ -137,10 +137,16 @@ const inputMonkeys = getMonkeys(inputString);
 // console.log('test monkeys: ', testMonkeys.length);
 // console.log('input monkeys:', inputMonkeys.length);
 
-const getMonkeyBusinessNumber = (passedMonkeys, numRounds) => {
+const getMonkeyBusinessNumber = (passedMonkeys, numRounds, reduce = true) => {
   const monkeys = JSON.parse(JSON.stringify(passedMonkeys));
   let monkeyHoldings = monkeys.map(({ startingItems }) => startingItems);
   let monkeyInspections = monkeys.map(() => 0);
+
+  // For part 2, need to keep the numbers in check
+  // All that matters is divisibilty by the monkeys' test numbers
+  // They're all primes, so multiply to get an LCD?
+  const testLcd = monkeys.map(({ test }) => test)
+    .reduce((product, num) => product * num, 1);
 
   for (let currentRound = 0; currentRound < numRounds; currentRound++) {
 
@@ -158,7 +164,11 @@ const getMonkeyBusinessNumber = (passedMonkeys, numRounds) => {
           currentItem = currentItem + currentMonkey.value;
         }
         // item # / 3, rounded down
-        currentItem = Math.floor(currentItem / 3);
+        if (reduce) {
+          currentItem = Math.floor(currentItem / 3);
+        }
+        // Reduce by LCD
+        currentItem = currentItem % testLcd;
         // Based on the test, throw to another monkey
         const testResult = currentItem % currentMonkey.test === 0;
         const targetMonkeyNum = testResult ? currentMonkey.ifTrue : currentMonkey.ifFalse;
@@ -166,7 +176,13 @@ const getMonkeyBusinessNumber = (passedMonkeys, numRounds) => {
       }
     }
 
-    // console.log('Round', currentRound + 1);
+    if ((currentRound + 1) % 1000 === 0 || currentRound === 19) {
+      console.log('Round', currentRound + 1);
+      for (let j = 0; j < monkeyInspections.length; j++) {
+        console.log('monkey', j, monkeyInspections[j]);
+
+      }
+    }
     // let j = 0;
     // for (const oneHold of monkeyHoldings) {
     //   console.log('Monkey', j, ':', oneHold);
@@ -180,5 +196,8 @@ const getMonkeyBusinessNumber = (passedMonkeys, numRounds) => {
   console.log(monkeyInspections[0], '*', monkeyInspections[1], '=', monkeyInspections[0] * monkeyInspections[1]);
 };
 
-getMonkeyBusinessNumber(testMonkeys, 20);
-getMonkeyBusinessNumber(inputMonkeys, 20);
+// getMonkeyBusinessNumber(testMonkeys, 20);
+// getMonkeyBusinessNumber(inputMonkeys, 20);
+
+getMonkeyBusinessNumber(testMonkeys, 10000, false);
+getMonkeyBusinessNumber(inputMonkeys, 10000, false);
