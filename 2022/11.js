@@ -113,8 +113,6 @@ const getMonkeys = (str) => {
       value = Number(operationValue);
     }
 
-
-
     const testStr = testRegex.exec(oneStr)[1];
     const test = Number(testStr);
     const ifTrueStr = ifTrueRegex.exec(oneStr)[1];
@@ -136,5 +134,51 @@ const getMonkeys = (str) => {
 
 const testMonkeys = getMonkeys(testInputString);
 const inputMonkeys = getMonkeys(inputString);
-console.log('test monkeys: ', testMonkeys.length)
-console.log('input monkeys:', inputMonkeys.length);
+// console.log('test monkeys: ', testMonkeys.length);
+// console.log('input monkeys:', inputMonkeys.length);
+
+const getMonkeyBusinessNumber = (passedMonkeys, numRounds) => {
+  const monkeys = JSON.parse(JSON.stringify(passedMonkeys));
+  let monkeyHoldings = monkeys.map(({ startingItems }) => startingItems);
+  let monkeyInspections = monkeys.map(() => 0);
+
+  for (let currentRound = 0; currentRound < numRounds; currentRound++) {
+
+    for (let currentMonkeyNum = 0; currentMonkeyNum < monkeys.length; currentMonkeyNum++) {
+      const currentMonkey = monkeys[currentMonkeyNum];
+      while (monkeyHoldings[currentMonkeyNum].length > 0) {
+        monkeyInspections[currentMonkeyNum]++;
+        let currentItem = monkeyHoldings[currentMonkeyNum].shift();
+        // item # changes based on the operation
+        if (currentMonkey.operation === 'square') {
+          currentItem = currentItem * currentItem;
+        } else if (currentMonkey.operation === '*') {
+          currentItem = currentItem * currentMonkey.value;
+        } else if (currentMonkey.operation === '+') {
+          currentItem = currentItem + currentMonkey.value;
+        }
+        // item # / 3, rounded down
+        currentItem = Math.floor(currentItem / 3);
+        // Based on the test, throw to another monkey
+        const testResult = currentItem % currentMonkey.test === 0;
+        const targetMonkeyNum = testResult ? currentMonkey.ifTrue : currentMonkey.ifFalse;
+        monkeyHoldings[targetMonkeyNum].push(currentItem);
+      }
+    }
+
+    // console.log('Round', currentRound + 1);
+    // let j = 0;
+    // for (const oneHold of monkeyHoldings) {
+    //   console.log('Monkey', j, ':', oneHold);
+    //   j++;
+    // }
+    // console.log('');
+
+  }
+
+  monkeyInspections.sort((a, b) => a - b).reverse();
+  console.log(monkeyInspections[0], '*', monkeyInspections[1], '=', monkeyInspections[0] * monkeyInspections[1]);
+};
+
+getMonkeyBusinessNumber(testMonkeys, 20);
+getMonkeyBusinessNumber(inputMonkeys, 20);
