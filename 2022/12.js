@@ -138,6 +138,95 @@ const getShortestPathLength = ({ startX, startY, endX, endY, map }) => {
   return shortestPath;
 }
 
+// Find the shortest path from any 'a'
+const getShortestPathLengthPart2 = ({ startX, startY, endX, endY, map }) => {
+  // Set up a grid of keys for the graph
+  // Is there a better way to get a unique key for the graph for each cell?
+  let keyCounter = 0;
+  let keys = [];
+  for (let y = 0; y < map.length; y++) {
+    keys[y] = [];
+    for (let x = 0; x < map[0].length; x++) {
+      keys[y].push(keyCounter);
+      keyCounter++;
+    }
+  }
+
+  // Add each cell to the graph
+  let graph = {};
+  const alpha = 'abcdefghijklmnopqrstuvwxyz';
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[0].length; x++) {
+      // Get the adjoining cells and their scores
+      let potentialTargetCells = [];
+      if (y > 0) {
+        potentialTargetCells.push({
+          key: keys[y - 1][x],
+          letter: map[y - 1][x],
+        });
+      }
+      if (y < map.length - 1) {
+        potentialTargetCells.push({
+          key: keys[y + 1][x],
+          letter: map[y + 1][x],
+        });
+      }
+      if (x > 0) {
+        potentialTargetCells.push({
+          key: keys[y][x - 1],
+          letter: map[y][x - 1],
+        });
+      }
+      if (x < map[0].length - 1) {
+        potentialTargetCells.push({
+          key: keys[y][x + 1],
+          letter: map[y][x + 1],
+        });
+      }
+      // Add the ones that are no more than 1 step up to the graph
+      // We can only go up one letter but down any number of letters
+      const currentCellKey = keys[y][x];
+      const currentCellLetter = map[y][x];
+      const currentCellScore = alpha.indexOf(currentCellLetter);
+      // Filter out paths that are more than +1 letter up
+      // Does this mess up the algorithm because it creates one-way paths?
+      // Should I make impossible letter steps infinity?
+      const validTargetKeys = potentialTargetCells.filter(({ letter }) => {
+        const targetIndex = alpha.indexOf(letter);
+        // If the target cell is no more than one letter up, it's a valid path
+        return targetIndex <= currentCellScore + 1;
+      }).map(({ key }) => key);
+      // Add to the graph
+      const graphAddition = validTargetKeys.reduce((obj, key) => {
+        obj[key] = 1;
+        return obj;
+      }, {});
+      graph[currentCellKey] = graphAddition;
+    }
+  }
+
+  // Find all of the 'a's
+  let keysOfAs = [];
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[0].length; x++) {
+      if (map[y][x] === 'a'){
+        keysOfAs.push(keys[y][x]);
+      }
+    }
+  }
+
+  // Get the length of the shortest path to all As
+  const keyOfEnd = keys[endY][endX];
+  const pathLengths = keysOfAs.map((oneKey) =>{
+    try {
+      return find_path(graph, oneKey, keyOfEnd).length
+    } catch (error) {
+      return null
+    }
+  }).filter((a) => !!a);
+  return Math.min(...pathLengths);
+}
+
 const testInput = processInputString(testInputString);
 const shortestTestPath = getShortestPathLength(testInput);
 console.log(shortestTestPath.length, 'should be 31');
@@ -146,3 +235,5 @@ const shortestInputPath = getShortestPathLength(input);
 console.log('Part 1:', shortestInputPath.length);
 // 473 is too high; 472 was correct
 // I just substracted one guessing that there was an off-by-one but don't know where it is.
+console.log('Part 2:', getShortestPathLengthPart2(input) - 1);
+// 465, again off by one
