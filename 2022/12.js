@@ -123,7 +123,18 @@ const getShortestPathLength = ({ startX, startY, endX, endY, map }) => {
   // Use the algorithm to find the shortest path
   const keyOfStart = keys[startY][startX];
   const keyOfEnd = keys[endY][endX];
-  const shortestPath = find_path(graph, keyOfStart, keyOfEnd);
+  const shortestPath = find_path(graph, keyOfStart, keyOfEnd).map(Number);
+
+  // Print path to compare with illustration from instructions
+  // let placesStepped = JSON.parse(JSON.stringify(keys));
+  // for (let y = 0; y < placesStepped.length; y++) {
+  //   for (let x = 0; x < placesStepped[0].length; x++) {
+  //     placesStepped[y][x] = shortestPath.includes(placesStepped[y][x]) ? 'X' : '.';
+  //   }
+  // }
+  // console.log(placesStepped.map((oneRow) => oneRow.join('')).join('\n'));
+  // Path is equivalent to the example
+
   return shortestPath;
 }
 
