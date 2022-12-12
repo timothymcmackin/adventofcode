@@ -144,4 +144,5 @@ console.log(shortestTestPath.length, 'should be 31');
 const input = processInputString(inputString);
 const shortestInputPath = getShortestPathLength(input);
 console.log('Part 1:', shortestInputPath.length);
-// 473 is too high
+// 473 is too high; 472 was correct
+// I just substracted one guessing that there was an off-by-one but don't know where it is.
