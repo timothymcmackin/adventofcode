@@ -31,12 +31,14 @@ const processInputString = (str) => {
   const stringByPairs = str.split('\n\n');
   return stringByPairs.map((wholeStr) => {
     const pairs = wholeStr.split('\n');
-    return pairs.map(stringToArray);
+    // return pairs.map(stringToArray);
+    return pairs.map(JSON.parse);
   });
 };
 
 // Break a string into array elements. Recursive.
 // Wonder if I could do this with a reduce().
+// Oh by Kibo, this can just be JSON.parse :facepalm:
 const stringToArray = (passedStr) => {
 
   if (passedStr.indexOf('[') != 0) {
@@ -127,6 +129,5 @@ const testInput = processInputString(testInputString);
 console.log(getSumOfPairsInRightOrder(testInput), 'should be 13');
 
 const input = processInputString(inputString);
-console.log('Part 1:', getSumOfPairsInRightOrder(input));
+console.log('Part 1:', getSumOfPairsInRightOrder(input)); //5675
 console.log('part 1 indexes:', getIndexesOfPairsInRightOrder(testInput), 'should be [ 1, 2, 4, 6 ]');
-// 5729 too high
