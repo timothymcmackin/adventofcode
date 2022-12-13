@@ -131,3 +131,25 @@ console.log(getSumOfPairsInRightOrder(testInput), 'should be 13');
 const input = processInputString(inputString);
 console.log('Part 1:', getSumOfPairsInRightOrder(input)); //5675
 console.log('part 1 indexes:', getIndexesOfPairsInRightOrder(testInput), 'should be [ 1, 2, 4, 6 ]');
+
+// Part 2
+// Now, you just need to put all of the packets in the right order. Disregard the blank lines in your list of received packets.
+const processStringsPart2 = (str) => {
+  const stringsWithNoNulls = str.split('\n').filter((s) => s !== '');
+  const dividerPackets = [[[2]], [[6]]];
+  return stringsWithNoNulls.map(JSON.parse).concat(dividerPackets);
+};
+
+// Organize all of the packets into the correct order.
+// Determine the indices of the two divider packets and multiply them together. (1-base arrays)
+let testInputPart2 = processStringsPart2(testInputString);
+testInputPart2 = testInputPart2.sort((a, b) => isPairInRightOrder([a, b]) ? -1 : 1);
+const dividerPacket2TestIndex = testInputPart2.findIndex((val) => JSON.stringify(val) === '[[2]]') + 1;
+const dividerPacket6TestIndex = testInputPart2.findIndex((val) => JSON.stringify(val) === '[[6]]') + 1;
+console.log(dividerPacket2TestIndex * dividerPacket6TestIndex, 'should be 140');
+
+let inputPart2 = processStringsPart2(inputString);
+inputPart2 = inputPart2.sort((a, b) => isPairInRightOrder([a, b]) ? -1 : 1);
+const dividerPacket2InputIndex = inputPart2.findIndex((val) => JSON.stringify(val) === '[[2]]') + 1;
+const dividerPacket6InputIndex = inputPart2.findIndex((val) => JSON.stringify(val) === '[[6]]') + 1;
+console.log('part 2:', dividerPacket2InputIndex * dividerPacket6InputIndex);
