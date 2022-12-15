@@ -137,8 +137,64 @@ const getNoBeaconsInLine = (sensorData, y) => {
 const testInput = processInputString(testInputString);
 const input = processInputString(inputString);
 
-const noBeaconsTest = getNoBeaconsInLine(testInput, 10);
-console.log(noBeaconsTest, 'should be 26');
+// const noBeaconsTest = getNoBeaconsInLine(testInput, 10);
+// console.log(noBeaconsTest, 'should be 26');
 
-const noBeaconsPart1 = getNoBeaconsInLine(input, 2000000);
-console.log('Part 1:', noBeaconsPart1); // 5256611
+// const noBeaconsPart1 = getNoBeaconsInLine(input, 2000000);
+// console.log('Part 1:', noBeaconsPart1); // 5256611
+
+// Part 2
+// The distress beacon is not detected by any sensor, but the distress beacon must have x and y coordinates each no lower than 0 and no larger than 4000000.
+// Got the hint that the beacon's space must be exactly +1 distance from at least two sensors
+// Also the strategy of considering the "diamonds" created by range + 1 from each sensor
+// So traverse the perimeter of each diamond and check each of those cells?
+const findTheBeacon = (sensorData, minToSearch, maxToSearch) => {
+  for (const datum of sensorData) {
+    const { sensor, distance } = datum;
+    let x1 = sensor.x;
+    let x2 = sensor.x;
+    let y1 = sensor.y - distance - 1;
+    let y2 = sensor.y + distance + 1;
+    while (y1 <= sensor.y) {
+      // Check these coordinates
+      if (couldThereBeABeaconHere(sensorData, x1, y1, minToSearch, maxToSearch)) {
+        return x1 * 4000000 + y1;
+      }
+      if (couldThereBeABeaconHere(sensorData, x1, y2, minToSearch, maxToSearch)) {
+        return x1 * 4000000 + y2;
+      }
+      if (couldThereBeABeaconHere(sensorData, x2, y1, minToSearch, maxToSearch)) {
+        return x2 * 4000000 + y1;
+      }
+      if (couldThereBeABeaconHere(sensorData, x2, y2, minToSearch, maxToSearch)) {
+        return x2 * 4000000 + y2;
+      }
+      // Increment
+      x1++;
+      x2--;
+      y1++;
+      y2--;
+    }
+  }
+
+ // To isolate the distress beacon's signal, you need to determine its tuning frequency, which can be found by multiplying its x coordinate by 4000000 and then adding its y coordinate.
+ return 0;
+}
+
+// Check this coordinate
+const couldThereBeABeaconHere = (sensorData, x, y, min, max) => {
+  if (x < min || x > max || y < min || y > max) {
+    return false;
+  }
+  // If any sensor is closer to this location than its distance, there can't be a beacon here
+  return !sensorData.some((datum) => {
+    const manhattanDistanceToSensor = Math.abs(x - datum.sensor.x) + Math.abs(y - datum.sensor.y);
+    return manhattanDistanceToSensor <= datum.distance;
+  });
+};
+
+const testBeaconPart2 = findTheBeacon(testInput, 0, 20);
+console.log(testBeaconPart2, 'should be 56000011');
+
+const beaconPart2 = findTheBeacon(input, 0, 4000000);
+console.log('Part 2:', beaconPart2);
