@@ -145,9 +145,8 @@ def findUnbalanced(nodeList, parentNodeName):
                     # TODO this works for the test input but is wrong for part 2
                     print(balancedScore - oneWeightStack[2])
 
-        else:
-            for oneName in parentNode.children:
-                findUnbalanced(nodeList, oneName)
+        for oneName in parentNode.children:
+            findUnbalanced(nodeList, oneName)
 
 def testPart2():
     nodeList = processInput(testInput)
