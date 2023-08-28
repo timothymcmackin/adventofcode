@@ -14,7 +14,7 @@ ugml (68) -> gyxo, ebii, jptl
 gyxo (61)
 cntj (57)'''
 
-with open('./input/7.txt', encoding="utf-8") as f:
+with open('./2017/input/7.txt', encoding="utf-8") as f:
     inputString = f.read()
 
 inputLineRegex = "(\w*)\s*\((\d*)\)(.*)"
@@ -67,6 +67,108 @@ def part1():
     topNode = getTopNode(nodeList)
     print("Part 1: " + topNode)
 
-
 testPart1()
 part1()
+
+# Part 2: Subtree weights must be balanced
+
+# Couldn't find a JS-style find() function in py
+def getNodeFromList(nodeList, nodeName):
+    for oneNode in nodeList:
+        if oneNode.name == nodeName:
+            return oneNode
+
+def getWeightOfSubtreeRecursive(nodeList, topNodeName):
+    topNode = getNodeFromList(nodeList, topNodeName)
+    total = topNode.score
+    for oneNodeName in topNode.children:
+        total += getWeightOfSubtreeRecursive(nodeList, oneNodeName)
+    return total
+
+def testGetWeight():
+    nodeList = processInput(testInput)
+    ugml = getWeightOfSubtreeRecursive(nodeList, "ugml")
+    padx = getWeightOfSubtreeRecursive(nodeList, "padx")
+    fwft = getWeightOfSubtreeRecursive(nodeList, "fwft")
+    if ugml != 251:
+        print("ugml is wrong")
+    if padx != 243:
+        print("padx is wrong")
+    if fwft != 243:
+        print("fwft is wrong")
+
+# return true if all ints in the array are the same
+def isListBalanced(numList):
+    newArray = []
+    for oneInt in numList:
+        if oneInt not in newArray:
+            newArray.append(oneInt)
+    return len(newArray) == 1
+
+def testIsListBalanced():
+    if isListBalanced([1, 1, 2]):
+        print("isListBalanced failed")
+    if isListBalanced([1, 1, 1]) == False:
+        print("isListBalanced failed")
+
+def getUnbalanced(numList):
+    for oneInt in numList:
+        if numList.count(oneInt) == 1:
+            return oneInt
+
+def getBalancedScore(numList):
+    for oneInt in numList:
+        if numList.count(oneInt) > 1:
+            return oneInt
+
+def findUnbalanced(nodeList, parentNodeName):
+    parentNode = getNodeFromList(nodeList, parentNodeName)
+    if parentNode.children:
+        # still don't have a handle on python map()
+        weights = []
+        for oneChild in parentNode.children:
+            weights.append(getWeightOfSubtreeRecursive(nodeList, oneChild))
+        if isListBalanced(weights) is False:
+            # Create a map of item's current weight to its subtree's weight
+            weightStack = []
+            for oneOtherChild in parentNode.children:
+                oneSubtreeWeight = getWeightOfSubtreeRecursive(nodeList, oneOtherChild)
+                oneOtherChildNode = getNodeFromList(nodeList, oneOtherChild)
+                weightStack.append([oneSubtreeWeight, oneOtherChildNode.score])
+
+            balancedScore = getBalancedScore(weights)
+            # find the weightStack element with a different subtree score
+            targetChildScore = 0
+            targetSubtreeScore = 0
+            for oneWeightStack in weightStack:
+                if oneWeightStack[0] != balancedScore:
+                    targetChildScore = oneWeightStack[1]
+                    targetSubtreeScore = oneWeightStack[0]
+
+            # get the difference
+            # TODO this works for the test input but is wrong for part 2
+            print(targetChildScore + (balancedScore - targetSubtreeScore))
+
+        else:
+            for oneName in parentNode.children:
+                findUnbalanced(nodeList, oneName)
+
+def testPart2():
+    nodeList = processInput(testInput)
+    topNode = getTopNode(nodeList)
+    print("Test part 2 should be 60: ")
+    findUnbalanced(nodeList, topNode)
+
+def part2():
+    nodeList = processInput(inputString)
+    topNode = getTopNode(nodeList)
+    print("Part 2: ")
+    findUnbalanced(nodeList, topNode)
+
+
+testGetWeight()
+testIsListBalanced()
+testPart2()
+part2()
+# 64507 too high
+# 38505 too high
