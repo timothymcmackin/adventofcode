@@ -134,20 +134,16 @@ def findUnbalanced(nodeList, parentNodeName):
             for oneOtherChild in parentNode.children:
                 oneSubtreeWeight = getWeightOfSubtreeRecursive(nodeList, oneOtherChild)
                 oneOtherChildNode = getNodeFromList(nodeList, oneOtherChild)
-                weightStack.append([oneSubtreeWeight, oneOtherChildNode.score])
+                subtreeMinusTop = oneSubtreeWeight - oneOtherChildNode.score
+                weightStack.append([oneSubtreeWeight, oneOtherChildNode.score, subtreeMinusTop, oneOtherChild])
 
             balancedScore = getBalancedScore(weights)
             # find the weightStack element with a different subtree score
-            targetChildScore = 0
-            targetSubtreeScore = 0
             for oneWeightStack in weightStack:
                 if oneWeightStack[0] != balancedScore:
-                    targetChildScore = oneWeightStack[1]
-                    targetSubtreeScore = oneWeightStack[0]
-
-            # get the difference
-            # TODO this works for the test input but is wrong for part 2
-            print(targetChildScore + (balancedScore - targetSubtreeScore))
+                    # Subtract the sub-stack without the top part from the balanced score to find out what the top should be to be balanced
+                    # TODO this works for the test input but is wrong for part 2
+                    print(balancedScore - oneWeightStack[2])
 
         else:
             for oneName in parentNode.children:
