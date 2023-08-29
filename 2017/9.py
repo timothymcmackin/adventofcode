@@ -61,4 +61,28 @@ def testCountScore():
             print("testCountScore test case failed: " + testCase[0] + ' came out as ' + str(countScore(processedString)))
 testCountScore()
 
-print("Part 1: " + str(countScore(inputString)))
+# print("Part 1: " + str(countScore(inputString)))
+
+# count all of the characters within the garbage. The leading and trailing < and > don't count, nor do any canceled characters or the ! doing the canceling.
+def countGarbage(str):
+    chars = list(str)
+    count = 0
+    inGarbage = False
+    # Garbage sections start with < and end with >
+    while len(chars) > 0:
+        char = chars.pop(0)
+        if inGarbage:
+            if char == '>':
+                inGarbage = False
+            elif char == '!':
+                # ! escapes the next character
+                chars.pop(0)
+            else:
+                count += 1
+        else:
+            if char == '<':
+                inGarbage = True
+
+    return count
+
+print("Part 2: " + str(countGarbage(inputString)))
