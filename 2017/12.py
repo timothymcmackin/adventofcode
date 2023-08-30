@@ -34,8 +34,41 @@ def findConnectionsToZero(l):
                         allConnections.append(oneNum)
     return len(allConnections)
 
+def getNumberOfGroups(l):
+    groups = []
+
+    # Get a list of all numbers
+    allNumbers = []
+    for oneLine in l:
+        if oneLine[0] not in allNumbers:
+            allNumbers.append(oneLine[0])
+        for oneNum in oneLine[1]:
+            if oneNum not in allNumbers:
+                allNumbers.append(oneNum)
+    allNumbers.sort()
+
+    while len(allNumbers) > 0:
+        # get a number's group
+        oneGroup = [allNumbers.pop(0)]
+        keepGoing = True
+        while keepGoing:
+            keepGoing = False
+            # find all connections from existing connections
+            for oneLine in l:
+                if oneLine[0] in oneGroup:
+                    for oneNum in oneLine[1]:
+                        if oneNum not in oneGroup:
+                            keepGoing = True
+                            oneGroup.append(oneNum)
+                            allNumbers.remove(oneNum)
+        groups.append(oneGroup)
+
+    return len(groups)
+
 testInput = processInput(testString)
 input = processInput(inputString)
 print('Part 1 test should be 6: ', str(findConnectionsToZero(testInput)))
 print('Part 1: ', str(findConnectionsToZero(input)))
+print('Part 2 test should be 2: ', str(getNumberOfGroups(testInput)))
+print('Part 2: ', str(getNumberOfGroups(input)))
 
