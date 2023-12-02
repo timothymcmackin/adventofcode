@@ -72,3 +72,14 @@ console.log("Test input answer should be 8:", testInputAnswer);
 
 const input = processInput(inputString);
 console.log('Part 1: ', getPossibleGamesSum(input, 12, 13, 14));
+
+// Part 2: For each game, find the minimum set of cubes that must have been present. What is the sum of the power of these sets?
+
+const getPowerOfMinimumGames = (gameData) =>
+  gameData.reduce((sum, { colorMax }) =>
+  sum + (colorMax.red * colorMax.green * colorMax.blue)
+, 0);
+
+const testInputPart2Answer = getPowerOfMinimumGames(testInput);
+console.log("Test input answer should be 2286:", testInputPart2Answer);
+console.log("Part 2 answer:", getPowerOfMinimumGames(input));
