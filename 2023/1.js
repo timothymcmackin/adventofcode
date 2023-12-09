@@ -27,11 +27,11 @@ const getValuePart1 = (input) => {
   return lineValues.reduce((sum, value) => sum + value, 0);
 }
 
-if (getValuePart1(testInput) !== 142) {
-  console.log('Test for part 1 failed. Should be 143 and got ' + getValuePart1(testInput));
-}
+// if (getValuePart1(testInput) !== 142) {
+//   console.log('Test for part 1 failed. Should be 143 and got ' + getValuePart1(testInput));
+// }
 
-console.log('Part 1: ' + getValuePart1(input));
+// console.log('Part 1: ' + getValuePart1(input));
 
 // Part 2: convert the words to numbers in the string
 
@@ -95,7 +95,7 @@ swaps.reduce((lineString, oneNumberString, idx) =>
 
 // push the characters to a stack until you hit a number?
 const convertStringPart2 = (input) => {
-  console.log("String:", input);
+  // console.log("String:", input);
   // Split into sections divided by digits to make it easier to do replaces
   const chars = input.split('');
   const blocks = [];
@@ -119,37 +119,59 @@ const convertStringPart2 = (input) => {
   }
 
   // Convert the strings to numbers
-  const blocksConvertedToNumbers = blocks.map((oneBlock) => {
-    var newBlocks = [];
-    while(oneBlock.length > 0) {
-      if (digitRegex.test(oneBlock[0])) {
-        newBlocks.push(oneBlock.substring(0, 1));
-        oneBlock = oneBlock.substring(1);
-      } else {
-        foundMatch = false;
-        swaps.forEach((numberName, index) => {
-          if (oneBlock.startsWith(numberName)) {
-            newBlocks.push(index + 1);
-            oneBlock = oneBlock.replace(numberName, '');
-            foundMatch = true;
-          }
+  // const blocksConvertedToNumbers = blocks.map((oneBlock) => {
+  //   var newBlocks = [];
+  //   while(oneBlock.length > 0) {
+  //     if (digitRegex.test(oneBlock[0])) {
+  //       newBlocks.push(oneBlock.substring(0, 1));
+  //       oneBlock = oneBlock.substring(1);
+  //     } else {
+  //       foundMatch = false;
+  //       swaps.forEach((numberName, index) => {
+  //         if (oneBlock.startsWith(numberName)) {
+  //           newBlocks.push(index + 1);
+  //           oneBlock = oneBlock.replace(numberName, '');
+  //           foundMatch = true;
+  //         }
 
-        });
-        if (!foundMatch) {
-          oneBlock = oneBlock.substring(1);
-        }
-      }
-    }
+  //       });
+  //       if (!foundMatch) {
+  //         oneBlock = oneBlock.substring(1);
+  //       }
+  //     }
+  //   }
 
-    // Not sure how to do this piece by piece
+  //   // Not sure how to do this piece by piece
 
-    return newBlocks;
-  }).flat();
-  console.log("Becomes", blocksConvertedToNumbers.join(''), "with value", getLineValue(blocksConvertedToNumbers.join('')))
+  //   return newBlocks;
+  // }).flat();
+
+  const blocksConvertedToNumbers = blocks.map(convertBlockToNumber);
+  // console.log("Becomes", blocksConvertedToNumbers.join(''), "with value", getLineValue(blocksConvertedToNumbers.join('')))
   return blocksConvertedToNumbers.join('');
 }
 
-// console.log(convertStringPart2('4nineeightseven2'));
+// In the example, words got converted from the beginning, but it appears that they have to get converted by the end
+const convertBlockToNumber = (block) => {
+  if (digitRegex.test(block)) {
+    return block;
+  }
+  let blockArr = block.split('');
+  let str = '';
+  let result = '';
+  while (blockArr.length > 0) {
+    str = blockArr.pop() + str;
+    swaps.forEach((numberName, index) => {
+      if (str.startsWith(numberName)) {
+        result = String(index + 1) + result;
+        str = '';
+      }
+    });
+  }
+  return result;
+}
+
+// console.log(convertStringPart2('eighttwothree'));
 
 // testInputPart2.split('\n').forEach((line) => {
 //   console.log(line, ' becomes ', convertStringPart2(line));
@@ -164,8 +186,22 @@ const getValuePart2 = (input) => {
   return lineValues.reduce((sum, value) => sum + value, 0);
 }
 
-// if (getValuePart2(testInputPart2) !== 281) {
-//   console.log('Test for part 2 failed. Should be 281 and got ' + getValuePart2(testInputPart2));
-// }
+const debugPart2 = (input) => {
+  const lines = input.split('\n');
+  const data = lines.map((oneLine) => ({
+    line: oneLine,
+    digits: convertStringPart2(oneLine),
+    value: getLineValue(convertStringPart2(oneLine)),
+  }));
+  data.map(({line, digits, value}) => console.log(line, digits, value));
+  const result = data.reduce((sum, { value }) => sum + value, 0);
+  console.log('Part 2:', result);
+}
+
+if (getValuePart2(testInputPart2) !== 281) {
+  console.log('Test for part 2 failed. Should be 281 and got ' + getValuePart2(testInputPart2));
+}
 console.log("Part 2:", getValuePart2(input));
 // 55427 too low
+// 55549 too high
+// debugPart2(testInput);
