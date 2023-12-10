@@ -76,3 +76,38 @@ if (part1TestAnswer !== 13) {
 const part1Answer = getValueForCards(processInputString(input));
 
 console.log('Part 1:', part1Answer);
+
+// Part 2: Matches win copies of the following cards
+
+const getNumberOfMatches = ({ winningNumbers, numbersOnCard }) => {
+  const matches = numbersOnCard.filter((oneNum) =>
+    winningNumbers.includes(oneNum)
+  );
+  return matches.length;
+}
+
+const getNumberOfCards = (inputString) => {
+  const cards = processInputString(inputString)
+    .map((oneCard) => ({ ...oneCard, copies: 1, matches : getNumberOfMatches(oneCard) }));
+  // Could do this with a reduce
+  // But for transparency/debugging purposes, use a for loop
+  for (let index = 0; index < cards.length; index++) {
+    const currentCard = cards[index];
+    // For currentCard.matches, add 1 to each following card
+    const add1Start = index + 1;
+    const add1End = add1Start + currentCard.matches;
+    for (let j = add1Start; j < add1End; j++) {
+      cards[j].copies = cards[j].copies + currentCard.copies;
+    }
+  }
+  // Return the number of cards, taking into account the copies
+  return cards.reduce((sum, { copies }) =>
+    sum + copies
+  ,  0);
+}
+
+const testInputNumberOfCards = getNumberOfCards(testInputString);
+if (testInputNumberOfCards !== 30) {
+  console.log('Test input part 2 should be 30 but got', testInputNumberOfCards);
+}
+console.log('Part 2:', getNumberOfCards(input));
