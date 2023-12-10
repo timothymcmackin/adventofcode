@@ -152,24 +152,24 @@ const convertStringPart2 = (input) => {
 }
 
 // In the example, words got converted from the beginning, but it appears that they have to get converted by the end
-const convertBlockToNumber = (block) => {
-  if (digitRegex.test(block)) {
-    return block;
-  }
-  let blockArr = block.split('');
-  let str = '';
-  let result = '';
-  while (blockArr.length > 0) {
-    str = blockArr.pop() + str;
-    swaps.forEach((numberName, index) => {
-      if (str.startsWith(numberName)) {
-        result = String(index + 1) + result;
-        str = '';
-      }
-    });
-  }
-  return result;
-}
+// const convertBlockToNumber = (block) => {
+//   if (digitRegex.test(block)) {
+//     return block;
+//   }
+//   let blockArr = block.split('');
+//   let str = '';
+//   let result = '';
+//   while (blockArr.length > 0) {
+//     str = blockArr.pop() + str;
+//     swaps.forEach((numberName, index) => {
+//       if (str.startsWith(numberName)) {
+//         result = String(index + 1) + result;
+//         str = '';
+//       }
+//     });
+//   }
+//   return result;
+// }
 
 // console.log(convertStringPart2('eighttwothree'));
 
@@ -177,31 +177,110 @@ const convertBlockToNumber = (block) => {
 //   console.log(line, ' becomes ', convertStringPart2(line));
 // })
 
-const getValuePart2 = (input) => {
-  const lines = input.split('\n');
-  const linesWithStringNumbers = lines.map(convertStringPart2);
-  const lineValues = linesWithStringNumbers
-    .map(filterOutLetters)
-    .map(getLineValue);
-  return lineValues.reduce((sum, value) => sum + value, 0);
+// const getValuePart2 = (input) => {
+//   const lines = input.split('\n');
+//   const linesWithStringNumbers = lines.map(convertStringPart2);
+//   const lineValues = linesWithStringNumbers
+//     .map(filterOutLetters)
+//     .map(getLineValue);
+//   return lineValues.reduce((sum, value) => sum + value, 0);
+// }
+
+// const debugPart2 = (input) => {
+//   const lines = input.split('\n');
+//   const data = lines.map((oneLine) => ({
+//     line: oneLine,
+//     digits: convertStringPart2(oneLine),
+//     value: getLineValue(convertStringPart2(oneLine)),
+//   }));
+//   data.map(({line, digits, value}) => console.log(line, digits, value));
+//   const result = data.reduce((sum, { value }) => sum + value, 0);
+//   console.log('Part 2:', result);
+// }
+
+const part2Attempt3 = (inputString) => {
+  const lines = inputString.split('\n');
+  return lines.reduce((sum, oneLine) =>
+    sum + getLineValuePart2Attempt3(oneLine)
+  , 0);
 }
 
-const debugPart2 = (input) => {
-  const lines = input.split('\n');
-  const data = lines.map((oneLine) => ({
-    line: oneLine,
-    digits: convertStringPart2(oneLine),
-    value: getLineValue(convertStringPart2(oneLine)),
-  }));
-  data.map(({line, digits, value}) => console.log(line, digits, value));
-  const result = data.reduce((sum, { value }) => sum + value, 0);
-  console.log('Part 2:', result);
+// I've tried replacing number names from the beginning and from the end
+// Try getting the first number from the beginning and the last number from the end
+const getLineValuePart2Attempt3 = (lineString) => {
+  return (getBeginningNumber(lineString) * 10) + getEndNumber(lineString);
 }
 
-if (getValuePart2(testInputPart2) !== 281) {
+const getBeginningNumber = (lineString) => {
+  let tempString = '';
+  const line = lineString.split('');
+  let foundNumber;
+
+  while (line.length > 0) {
+    const oneChar = line.shift();
+    if (digitRegex.test(oneChar)) {
+      return Number(oneChar);
+    } else {
+      tempString += oneChar;
+      swaps.forEach((numberName, index) => {
+        if (tempString.endsWith(numberName)) {
+          foundNumber = index + 1;
+        }
+      });
+      if (foundNumber) {
+        return foundNumber;
+      }
+    }
+  }
+}
+
+const getEndNumber = (lineString) => {
+  let tempString = '';
+  const line = lineString.split('');
+  let foundNumber;
+
+  while (line.length > 0) {
+    const oneChar = line.pop(); // only difference is this pop instead of shift
+    if (digitRegex.test(oneChar)) {
+      return Number(oneChar);
+    } else {
+      tempString = oneChar + tempString; // Also the order here
+      swaps.forEach((numberName, index) => {
+        if (tempString.startsWith(numberName)) { // also startswith instead of endswith
+          foundNumber = index + 1;
+        }
+      });
+      if (foundNumber) {
+        return foundNumber;
+      }
+    }
+  }
+}
+
+const testPart2Attempt3 = () => {
+  const testValues = [
+    { line: 'two1nine', value: 29 },
+    { line: 'eightwothree', value: 83 },
+    { line: 'abcone2threexyz', value: 13 },
+    { line: 'xtwone3four', value: 24 },
+    { line: '4nineeightseven2', value: 42 },
+    { line: 'zoneight234', value: 14 },
+    { line: '7pqrstsixteen', value: 76 },
+  ];
+
+  testValues.forEach(({ line, value }) => {
+    const calculatedValue = getLineValuePart2Attempt3(line);
+    if (calculatedValue !== value) {
+      console.log(`Test failed. Line ${line} returned ${calculatedValue} but it should be ${value}.`)
+    }
+  });
+}
+testPart2Attempt3();
+
+if (part2Attempt3(testInputPart2) !== 281) {
   console.log('Test for part 2 failed. Should be 281 and got ' + getValuePart2(testInputPart2));
 }
-console.log("Part 2:", getValuePart2(input));
+console.log("Part 2:", part2Attempt3(input));
 // 55427 too low
 // 55549 too high
-// debugPart2(testInput);
+// 55429 correct
