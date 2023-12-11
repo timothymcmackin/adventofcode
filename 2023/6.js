@@ -65,8 +65,29 @@ const getNumberOfWinningTimesForRace = (race) =>
 const getProductOfWinningTimes = (races) =>
   races.reduce((product, oneRace) => product * getNumberOfWinningTimesForRace(oneRace), 1);
 
-const testInputResult = getProductOfWinningTimes(testInput)
+const testInputResult = getProductOfWinningTimes(testInput);
 if (testInputResult !== 288) {
   console.log('Test filed. Should be 288 but got ', testInputResult);
 }
 console.log('Part 1: ', getProductOfWinningTimes(input));
+
+const formatInputPart2 = (str) => {
+  const lines = str.split('\n');
+  const times = lines[0].split(' ');
+  times.shift();
+  const distances = lines[1].split(' ');
+  distances.shift();
+
+  const time = Number(times.join(''));
+  const distance = Number(distances.join(''));
+  return { time, distance };
+}
+
+const testInputPart2 = formatInputPart2(testInputString);
+const inputPart2 = formatInputPart2(inputString);
+
+const testResultPart2 = getNumberOfWinningTimesForRace(testInputPart2);
+if (testResultPart2 !== 71503) {
+  console.log('Test filed. Should be 71503 but got ', testResultPart2);
+}
+console.log('Part 2: ', getNumberOfWinningTimesForRace(inputPart2));
