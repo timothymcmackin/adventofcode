@@ -142,12 +142,37 @@ const testOrdering = () => {
   if (result2[0].hand !== "KK677") {
     console.log("sort of KK and 23 failed.");
   }
+  const result3 = [
+    { hand: "KTJJT" },
+    { hand: "T55J5" },
+  ].sort(handSortFunction);
+  if (result3[0].hand !== "T55J5") {
+    console.log("sort of T55J5 and KTJJT failed.");
+  }
+  const result4 = [
+    { hand: "KK677" },
+    { hand: "T55J5" },
+  ].sort(handSortFunction);
+  if (result4[0].hand !== "T55J5") {
+    console.log("sort of T55J5 and KK677 failed.");
+  }
 }
 testOrdering();
 
 
 const testInput = processInput(testInputString);
-const testInputSorted = testInput.sort(handSortFunction);
-// console.log(testInputSorted)
 const input = processInput(inputString);
 
+// Each hand wins an amount equal to its bid multiplied by its rank, where the weakest hand gets rank 1, the second-weakest hand gets rank 2, and so on up to the strongest hand.
+
+const getTotalPart1 = (inputHands) => {
+  const sortedHands = inputHands.sort(handSortFunction).reverse();
+  return sortedHands.reduce((sum, { bid }, index) =>
+    sum + (bid * (index + 1))
+  , 0);
+}
+const testTotalPart1 = getTotalPart1(testInput);
+if (testTotalPart1 !== 6440) {
+  console.log('Test part 1 failed; got', testTotalPart1);
+}
+// console.log('Part 1:', getTotalPart1(input));
