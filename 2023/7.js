@@ -4,6 +4,8 @@ KK677 28
 KTJJT 220
 QQQJA 483`;
 
+const { inputString } = require('./input/7');
+
 const processInput = (str) => {
   const lines = str.split('\n');
   return lines.map((oneLine) => ({
@@ -83,4 +85,62 @@ const getType = (handString) => {
   }
 }
 
-console.log(getType('32T3K'))
+const handSortFunction = (aHand, bHand) => {
+  const a = getType(aHand.hand);
+  const b = getType(bHand.hand);
+  if (a > b) return -1;
+  if (b < a) return 1;
+  // If two hands have the same type, a second ordering rule takes effect. Start by comparing the first card in each hand.
+  let result = 0;
+  let aArray = aHand.hand.split('');
+  let bArray = bHand.hand.split('');
+  while (result === 0 && aArray.length > 0) {
+    const charA = aArray.shift();
+    const charB = bArray.shift();
+    result = rankSortFunction(charA, charB);
+  }
+  return result;
+}
+
+const testTyping = () => {
+  [
+    ["32T3K", 6],
+    ["T55J5", 4],
+    ["KK677", 5],
+    ["KTJJT", 5],
+    ["QQQJA", 4],
+    ["AAAAA", 1],
+    ["QQQ22", 3],
+    ["44445", 2],
+  ].forEach((testCase) => {
+    if (testCase[1] !== getType(testCase[0])) {
+      console.log('Test case', testCase[0], 'failed; got', getType(testCase[0]));
+    }
+  })
+}
+testTyping();
+
+const testOrdering = () => {
+  const result1 = [
+    { hand: "KK677" },
+    { hand: "KTJJT" },
+  ].sort(handSortFunction);
+  if (result1[0].hand !== "KK677") {
+    console.log("sort of KK and KT failed.");
+  }
+  const result2 = [
+    { hand: "KK677" },
+    { hand: "23456" },
+  ].sort(handSortFunction);
+  if (result2[0].hand !== "KK677") {
+    console.log("sort of KK and 23 failed.");
+  }
+}
+testOrdering();
+
+
+const testInput = processInput(testInputString);
+const testInputSorted = testInput.sort(handSortFunction);
+// console.log(testInputSorted)
+const input = processInput(inputString);
+
