@@ -18,10 +18,17 @@ const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const rankSortFunction = (aChar, bChar) => {
   const a = ranks.indexOf(aChar);
   const b = ranks.indexOf(bChar);
-  if (a > b) return -1;
-  if (a < b) return 1;
+  if (a < b) return -1;
+  if (a > b) return 1;
   return 0;
 }
+const testRankSort = () => {
+  const result1 = ['J', 'Q'].sort(rankSortFunction);
+  if (result1[0] !== 'Q') {
+    console.log('Rank sort of J and Q failed');
+  }
+}
+testRankSort();
 
 // For ease of detecting three of a kinds, full houses, get the number of groups of matching characters
 const getGroups = (hand) => {
@@ -88,8 +95,8 @@ const getType = (handString) => {
 const handSortFunction = (aHand, bHand) => {
   const a = getType(aHand.hand);
   const b = getType(bHand.hand);
-  if (a > b) return -1;
-  if (b < a) return 1;
+  if (a < b) return -1;
+  if (b > a) return 1;
   // If two hands have the same type, a second ordering rule takes effect. Start by comparing the first card in each hand.
   let result = 0;
   let aArray = aHand.hand.split('');
