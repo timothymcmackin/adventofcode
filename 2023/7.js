@@ -193,6 +193,11 @@ const getType2 = (handString) => {
   const hand = handString.split('');
   const groups = getGroups(hand);
 
+  // edge case
+  if (handString === 'JJJJJ') {
+    return 1;
+  }
+
   // Part 2: put Js with the largest group of non-Js
   if (groups.J && groups.J > 0) {
     const numJs = groups.J;
@@ -204,6 +209,7 @@ const getType2 = (handString) => {
       }
       return prevLargest;
     });
+    groups[keyOfLargest] += numJs;
   }
 
   const numGroups = Object.keys(groups).length;
