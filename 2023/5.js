@@ -113,3 +113,29 @@ if (testAnswer !== 35) {
 
 console.log('Part 1:', getLowestDestination(input)); // 282277027
 
+// Part 2: treat the seed numbers as the start and end of ranges
+
+// Brute force method
+
+const getLowestDestinationPart2 = ({ seeds, factors }) => {
+  let min = 1000000;
+  while (seeds.length > 0) {
+    const rangeStart = seeds.shift();
+    const numberOfIterations = seeds.shift();
+    for (let i = 0; i < numberOfIterations; i++) {
+      const seedToCheck = rangeStart + i;
+      const value = getDestinationForSeed(seedToCheck, factors);
+      if (value < min) {
+        min = value;
+      }
+    }
+  }
+
+  return min;
+}
+
+const part2TestAnswer = getLowestDestinationPart2(testInput);
+if (part2TestAnswer !== 46) {
+  console.log('Test answer part 2 should be 46 but got', part2TestAnswer);
+}
+console.log('Part 2:', getLowestDestinationPart2(input));
