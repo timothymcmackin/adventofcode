@@ -33,7 +33,7 @@ const getNextNumberInSeries = (passedNums) => {
     lastNumbers.push(nums[nums.length - 1]);
     nums = reduceSeries(nums);
   }
-  nums.reverse();
+  lastNumbers.reverse();
   return lastNumbers.reduce((sum, currentNumber) =>
     sum + currentNumber
   , 0);
