@@ -52,3 +52,42 @@ if (getSumOfSeries(testInput) !== 114) {
 
 const input = processInput(inputStr);
 console.log('Part 1:', getSumOfSeries(input));
+
+/*
+[5]  10  13  16  21  30  45
+  [5]   3   3   5   9  15
+   [-2]   0   2   4   6
+      [2]   2   2   2
+          0   0   0
+*/
+const getPrevNumberInSeries = (passedNums) => {
+  // Only the last number in the series is important
+  const firstNumbers = [];
+  let nums = JSON.parse(JSON.stringify(passedNums));
+  while (!nums.every((n) => n === 0)) {
+    firstNumbers.push(nums[0]);
+    nums = reduceSeries(nums);
+  }
+  firstNumbers.reverse();
+  return firstNumbers.reduce((sum, currentNumber) =>
+    currentNumber - sum
+  , 0);
+}
+if (getPrevNumberInSeries(oneTestInput) !== -3) {
+  console.log('getPrevNumberInSeries test line 1failed; got', getPrevNumberInSeries(oneTestInput));
+}
+if (getPrevNumberInSeries(testInput[1]) !== 0) {
+  console.log('getPrevNumberInSeries test line 2 failed; got', getPrevNumberInSeries(testInput[1]));
+}
+if (getPrevNumberInSeries(testInput[2]) !== 5) {
+  console.log('getPrevNumberInSeries test line 3 failed; got', getPrevNumberInSeries(testInput[2]));
+}
+
+const getSumOfSeriesPart2 = (series) => series
+  .reduce((sum, oneSeries) => sum + getPrevNumberInSeries(oneSeries), 0);
+
+if (getSumOfSeriesPart2(testInput) !== 2) {
+  console.log('Part 2 test failed');
+}
+
+console.log('Part 2:', getSumOfSeriesPart2(input));
