@@ -206,7 +206,10 @@ if (calculateWeight(afterOneCycle) !== scoreAfterOneCycle) {
 }
 
 let grid = JSON.parse(JSON.stringify(input));
+let oldWeight = calculateWeight(input);
 for (let i = 0; i < 100; i++) {
   grid = roll4Directions(grid);
-  console.log(calculateWeight(grid));
+  const newWeight = calculateWeight(grid);
+  console.log(Math.abs(newWeight - oldWeight));
+  oldWeight = newWeight;
 }
