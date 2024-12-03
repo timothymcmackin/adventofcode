@@ -41,8 +41,32 @@ const isLevelSafe = (passedLevel) => {
   return true;
 }
 
+// In part 2 you can omit one number and still be safe
+const isLevelSafePart2 = (passedLevel) => {
+  if (isLevelSafe(passedLevel)) {
+    return true;
+  }
+  const level = JSON.parse(JSON.stringify(passedLevel));
+
+  // Remove one number at a time and test
+  // Easier than trying to omit numbers and continue through
+  for (let i = 0; i < level.length; i++) {
+    // Get a list minus that one number
+    let listWithoutOne = level.filter((_n, index) => index != i);
+    if (isLevelSafe(listWithoutOne)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const countSafeLevels = (levels) => levels
   .map(isLevelSafe)
+  .filter((l) => !!l)
+  .length;
+
+const countSafeLevelsPart2 = (levels) => levels
+  .map(isLevelSafePart2)
   .filter((l) => !!l)
   .length;
 
@@ -54,3 +78,10 @@ if (countSafeLevels(testInput) != 2) {
 } else {
   console.log('Part 1:', countSafeLevels(input));
 }
+
+if (countSafeLevelsPart2(testInput) != 4) {
+  console.log('Part 2 test failed; got', countSafeLevelsPart2(testInput));
+} else {
+  console.log('Part 2:', countSafeLevelsPart2(input));
+}
+// 611 too low
