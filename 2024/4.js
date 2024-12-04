@@ -78,8 +78,44 @@ const countXMAS = (inputString) => {
   return count;
 }
 
+/*
+M.S
+.A.
+M.S
+*/
+const countXedMas = (inputString) => {
+  const grid = processInput(inputString);
+  let count = 0;
+  let yLength = grid.length;
+  let xLength = grid[0].length;
+  // Can't be the edge
+  for (let y = 1; y < yLength - 1; y++) {
+    for (let x = 1; x < xLength - 1; x++) {
+      // It's a match if the character is an A and the diagonals are two Ms and two Ss
+      if (grid[y][x] == 'A') {
+        const letters = grid[y-1][x-1] + grid[y+1][x-1] + grid[y-1][x+1] + grid[y+1][x+1];
+        const Ms = letters.match(/M/g)?.length || 0;
+        const Ss = letters.match(/S/g)?.length || 0;
+        // Eliminate MAM and SAS matches
+        const eliminateDiagonal = grid[y-1][x-1] === grid[y+1][x+1];
+        if (Ms == 2 && Ss == 2 && !eliminateDiagonal) {
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
 if (countXMAS(testInputString) != 18) {
   console.log('Part 1 test failed, got ', countXMAS(testInputString));
 } else {
   console.log('Part 1:', countXMAS(inputString));
 }
+
+if (countXedMas(testInputString) != 9) {
+  console.log('Part 2 test failed, got ', countXedMas(testInputString));
+} else {
+  console.log('Part 2:', countXedMas(inputString));
+}
+// 2013 too high
