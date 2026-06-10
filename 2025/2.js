@@ -48,3 +48,70 @@ if (getSumOfInvalidInRanges(testCase1) !== 1227775554) {
 }
 console.log('Part 1:', getSumOfInvalidInRanges(rawInput))
 
+// Part 2:
+// Now, an ID is invalid if it is made only of some sequence of digits repeated at least twice. So, 12341234 (1234 two times), 123123123 (123 three times), 1212121212 (12 five times), and 1111111 (1 seven times) are all invalid IDs.
+
+const isValidPart2 = (idNumber) => {
+  // So we have to work out how many equal parts a number can be split into
+  const digits = String(idNumber).split('').map(Number);
+  // Loop and check if the number is evenly divisible
+  for (let i = 1; i <= digits.length; i++) {
+    // Is evenly divisible?
+    const divisor = Math.trunc(digits.length / i);
+    if (digits.length % i === 0 && divisor < digits.length) {
+      // Get the series of numbers by splitting into [divisor] parts
+      let parts = [];
+      for (let j = 0; j < digits.length; j += divisor) {
+        parts.push(digits.slice(j, j + divisor));
+      }
+      const numbers = parts.map((c) => Number(c.join('')));
+      // Invalid if all numbers are equal
+      // ... removes duplicates from a set
+      const uniqueNumbers = [...new Set(numbers)];
+      if (uniqueNumbers.length === 1) {
+        return false;
+      }
+    }
+  }
+  // True by default
+  return true;
+}
+
+const part2InvalidNumbers = [12341234, 123123123, 1212121212, 1111111];
+const failedPart2InvalidNumbers = part2InvalidNumbers.filter(isValidPart2);
+if (failedPart2InvalidNumbers.length > 0) {
+  console.log('Failed part 2 test:', failedPart2InvalidNumbers, 'came up valid')
+}
+const part2ValidNumbers = [12]
+const failedPart2ValidNumbers = part2ValidNumbers.filter(n => !isValidPart2(n));
+if (failedPart2ValidNumbers.length > 0) {
+  console.log('Failed part 2 test:', failedPart2ValidNumbers, 'came up invalid')
+}
+
+
+const getInvalidInRangePart2 = (rangeString) => {
+  const dashIndex = rangeString.indexOf('-');
+  const begin = Number(rangeString.slice(0, dashIndex));
+  const end = Number(rangeString.slice(dashIndex + 1));
+  let invalidNumbersInRange = [];
+  for (let i = begin; i <= end; i++) {
+    if (!isValidPart2(i)) {
+      invalidNumbersInRange.push(i);
+    }
+  }
+  return invalidNumbersInRange;
+}
+
+const getSumOfInvalidInRangesPart2 = (listOfRangesString) => {
+  const stringRanges = listOfRangesString.split(',');
+  return stringRanges.reduce((total, oneStringRange) => {
+    const invaidInRange = getInvalidInRangePart2(oneStringRange);
+    const sumOfInvalidInRange = invaidInRange.reduce((sum, oneVal) => sum + oneVal, total);
+    return sumOfInvalidInRange;
+  }, 0);
+}
+
+if (getSumOfInvalidInRangesPart2(testCase1) !== 4174379265) {
+  console.log('Test case 2 failed');
+}
+console.log('Part 2:', getSumOfInvalidInRangesPart2(rawInput))
