@@ -60,25 +60,51 @@ console.log('Part 1:', getTotalJoltage(rawInput));
 
 // Part 2: reduce to 12 digits and make the biggest number
 // Thought about this a bit and am just going to brute force by removing each number and checking
-const getBiggestByRemovingOneNumber = (joltageNumber) => {
-  const digits = String(joltageNumber).split('').map(Number);
-  let options = [];
-  // Create a list of all the options
-  for (let i = 0; i < digits.length; i++) {
-    const oneSetOfDigits = [...digits];
-    oneSetOfDigits.splice(i, 1);
-    options.push(Number(oneSetOfDigits.map(String).join('')));
+// No, this fails because the numbers are too big for JS
+// const getBiggestByRemovingOneNumber = (joltageNumber) => {
+//   const digits = String(joltageNumber).split('').map(Number);
+//   let options = [];
+//   // Create a list of all the options
+//   for (let i = 0; i < digits.length; i++) {
+//     const oneSetOfDigits = [...digits];
+//     oneSetOfDigits.splice(i, 1);
+//     options.push(Number(oneSetOfDigits.map(String).join('')));
+//   }
+//   // Find the largest number
+//   return options.reduce((prevLargest, oneNumber) => Math.max(prevLargest, oneNumber), 0);
+// }
+
+// Try removing the first number that is followed by a larger number
+// Do this as a string dues to the size
+// Could probably find a library to handle large numbers, but whatever
+// This does not work either
+const getBiggestByRemovingOneNumber = (joltageString) => {
+  let results = [];
+  let digits = joltageString.split('');
+  let removed = false;
+  let prev = Number(digits[0]);
+  while (!removed) {
+    if (digits.length === 1) {
+      // We have not removed a digit and we're on the last one, so remove it
+      removed = true;
+    } else {
+      if (Number(digits[0]) <= prev) {
+        prev = Number(digits[0]);
+        results.push(digits.shift());
+      } else {
+        removed = true;
+      }
+    }
   }
-  // Find the largest number
-  return options.reduce((prevLargest, oneNumber) => Math.max(prevLargest, oneNumber), 0);
+  return results.join('');
 }
 
 const getLargestPart2 = (joltageString) => {
-  let currentNumber = BigInt(joltageString);
-  while (String(currentNumber).split('').length > 12) {
-    currentNumber = getBiggestByRemovingOneNumber(currentNumber);
+  let currentString = joltageString;
+  while (currentString.length > 12) {
+    currentString = getBiggestByRemovingOneNumber(currentString);
   }
-  return currentNumber;
+  return Number(currentString);
 }
 
 const getTotalJoltagePart2 = (inputString) => inputString.split('\n').reduce((sum, oneString) =>
@@ -93,4 +119,7 @@ testInput.split('\n').forEach((oneString, index) => {
   }
 })
 
-console.log('Part 2:', getTotalJoltagePart2(rawInput));
+const oneBigNumber = "3434845634454364546334335333448443354324533545443235414334477424442444346844344244444434445333344314";
+const oneResult = getLargestPart2(oneBigNumber)
+console.log('oneResult', oneResult)
+// console.log('Part 2:', getTotalJoltagePart2(rawInput));
