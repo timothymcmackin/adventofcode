@@ -58,3 +58,39 @@ if (getTotalJoltage(testInput) !== 357) {
 }
 console.log('Part 1:', getTotalJoltage(rawInput));
 
+// Part 2: reduce to 12 digits and make the biggest number
+// Thought about this a bit and am just going to brute force by removing each number and checking
+const getBiggestByRemovingOneNumber = (joltageNumber) => {
+  const digits = String(joltageNumber).split('').map(Number);
+  let options = [];
+  // Create a list of all the options
+  for (let i = 0; i < digits.length; i++) {
+    const oneSetOfDigits = [...digits];
+    oneSetOfDigits.splice(i, 1);
+    options.push(Number(oneSetOfDigits.map(String).join('')));
+  }
+  // Find the largest number
+  return options.reduce((prevLargest, oneNumber) => Math.max(prevLargest, oneNumber), 0);
+}
+
+const getLargestPart2 = (joltageString) => {
+  let currentNumber = BigInt(joltageString);
+  while (String(currentNumber).split('').length > 12) {
+    currentNumber = getBiggestByRemovingOneNumber(currentNumber);
+  }
+  return currentNumber;
+}
+
+const getTotalJoltagePart2 = (inputString) => inputString.split('\n').reduce((sum, oneString) =>
+  sum + getLargestPart2(oneString)  
+, 0);
+
+const part2TestResults = [987654321111, 811111111119, 434234234278, 888911112111];
+testInput.split('\n').forEach((oneString, index) => {
+  const result = getLargestPart2(oneString);
+  if (result !== part2TestResults[index]) {
+    console.log('Test case failed, expected', part2TestResults[index], 'for', oneString, 'but got', result);
+  }
+})
+
+console.log('Part 2:', getTotalJoltagePart2(rawInput));
